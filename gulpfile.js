@@ -1,3 +1,5 @@
+'use strict';
+
 var gulp = require('gulp');
 var browserify = require('browserify');
 var reactify = require('reactify');
@@ -6,27 +8,24 @@ var gutil = require('gulp-util');
 var webserver = require('gulp-webserver');
 var notify = require('gulp-notify');
 var size = require('gulp-size');
-var rename = require('gulp-rename');
-
-// styles
+var gulpif = require('gulp-if');
 var sass = require('gulp-sass');
 var autoprefixer = require('gulp-autoprefixer');
 var sourcemaps = require('gulp-sourcemaps');
 var minifycss = require('gulp-minify-css');
-
-// scripts
 var source = require('vinyl-source-stream');
+var uglify = require('gulp-uglify');
+var useref = require('gulp-useref');
 
-
-var scriptsDir = './src/jsx';
-var buildDir = './dist';
-
+var sourceDir = './src';
+var buildDir = './build';
+var distDir = './dist';
 
 function handleError() {
     /* jshint ignore:start */
     var args = Array.prototype.slice.call(arguments);
-    $.util.beep();
-    $.notify.onError({
+    gutil.beep();
+    notify.onError({
         title: "Compile Error",
         message: "<%= error.message %>"
     }).apply(this, args);
@@ -34,22 +33,24 @@ function handleError() {
     /* jshint ignore:end */
 }
 
-function buildScript(file, watch) {
+function buildScript(file) {
     var props = watchify.args;
-    props.entries = [scriptsDir + '/' + file];
+    props.entries = [sourceDir + '/jsx/' + file];
     props.debug = true;
 
     var bundler = browserify(props);
-    if (watch) {
-        bundler = watchify(bundler);
-    }
+    bundler = watchify(bundler);
     bundler.transform(reactify);
 
     function rebundle() {
-        var stream = bundler.bundle();
-        return stream.on('error', handleError)
-            .pipe(source(file))
-            .pipe(gulp.dest(buildDir + '/'));
+        var start = Date.now();
+        return bundler.bundle()
+            .on('error', handleError)
+            .pipe(source('turn.js'))
+            .pipe(gulp.dest(buildDir))
+            .pipe(notify(function() {
+                console.log('Rebundle Complete - ' + (Date.now() - start) + 'ms');
+            }));
     }
 
     bundler.on('update', function() {
@@ -60,7 +61,7 @@ function buildScript(file, watch) {
 }
 
 gulp.task('styles', function() {
-    return gulp.src('src/styles/**/*')
+    return gulp.src('src/scss/**/*')
         .pipe(sourcemaps.init())
         .pipe(sass({
             errLogToConsole: true,
@@ -69,9 +70,7 @@ gulp.task('styles', function() {
         .pipe(sourcemaps.write())
         .pipe(autoprefixer('last 2 versions'))
         .pipe(gulp.dest(buildDir))
-        .pipe(rename({suffix: '.min'}))
-        .pipe(minifycss())
-        .pipe(gulp.dest(buildDir));
+        .pipe(size());
 });
 
 gulp.task('html', function() {
@@ -81,7 +80,7 @@ gulp.task('html', function() {
 });
 
 gulp.task('serve', function() {
-    return gulp.src(buildDir)
+    return gulp.src('build')
         .pipe(webserver({
             livereload: true,
             port: 9000,
@@ -90,12 +89,22 @@ gulp.task('serve', function() {
         }));
 });
 
+gulp.task('dist', ['build'], function() {
+    var assets = useref.assets();
+    return gulp.src('build/*.html')
+        .pipe(assets)
+        .pipe(gulpif('*.js', uglify()))
+        .pipe(gulpif('*.css', minifycss()))
+        .pipe(assets.restore())
+        .pipe(useref())
+        .pipe(gulp.dest(distDir));
+});
+
 gulp.task('build', ['html', 'styles'], function() {
-    return buildScript('turn.jsx', false);
+    return buildScript('turn.jsx');
 });
 
 gulp.task('default', ['build', 'serve'], function() {
     gulp.watch('src/*.html', ['html']);
-    gulp.watch('src/styles/**/*.scss', ['styles']);
-    return buildScript('turn.jsx', true);
+    gulp.watch('src/scss/**/*.scss', ['styles']);
 });
