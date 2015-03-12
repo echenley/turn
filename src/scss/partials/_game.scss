@@ -1,0 +1,25 @@
+
+%movable {
+    transition: transform 0.2s;
+}
+
+#turn-board {
+    display: inline-block;
+    margin-top: 2em;
+}
+
+.cursor {
+    position: absolute;
+    background: rgba(#fff, 0.15);
+    @extend %movable;
+}
+
+.tile {
+    float: left;
+}
+
+.arrow {
+    background: url('svg/arrow.svg') center center no-repeat;
+    background-size: contain;
+    @extend %movable;
+}

@@ -1,3 +1,4 @@
+@import url('//fonts.googleapis.com/css?family=Quicksand');
 /*
 
 Turn - A Game About Direction
@@ -7,7 +8,50 @@ Author URI: henleyedition.com
 
 */
 body {
-  background: blue; }
+  padding: 5%;
+  background: #369;
+  color: #fff;
+  text-align: center;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 120%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility; }
+
+h1 {
+  margin-bottom: 1.4em;
+  text-transform: uppercase;
+  letter-spacing: 2px; }
+  h1::first-letter {
+    display: inline-block;
+    -webkit-transform: rotate(-45deg);
+        -ms-transform: rotate(-45deg);
+            transform: rotate(-45deg); }
+
+hr {
+  margin: 1.5em auto;
+  max-width: 80px;
+  border: 0;
+  border-bottom: 3px solid #fff; }
+
+.cursor, .arrow {
+  -webkit-transition: -webkit-transform 0.2s;
+          transition: transform 0.2s; }
+
+#turn-board {
+  display: inline-block;
+  margin-top: 2em; }
+
+.cursor {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.15); }
+
+.tile {
+  float: left; }
+
+.arrow {
+  background: url('svg/arrow.svg') center center no-repeat;
+  background-size: contain; }
 
 
-/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInR1cm4uc2NzcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7Ozs7OztBQVNBO0VBQ0ksQUFBWSIsImZpbGUiOiJ0dXJuLmNzcyIsInNvdXJjZXNDb250ZW50IjpbIi8qXG5cblR1cm4gLSBBIEdhbWUgQWJvdXQgRGlyZWN0aW9uXG49PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09XG5BdXRob3I6ICAgICBFdmFuIEhlbmxleVxuQXV0aG9yIFVSSTogaGVubGV5ZWRpdGlvbi5jb21cblxuKi9cblxuYm9keSB7XG4gICAgYmFja2dyb3VuZDogYmx1ZTtcbn0iXSwic291cmNlUm9vdCI6Ii9zb3VyY2UvIn0= */
+/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInBhcnRpYWxzL19mb250cy5zY3NzIiwicGFydGlhbHMvX21haW4uc2NzcyIsInBhcnRpYWxzL19nYW1lLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7QUFFQSxBQ0ZBO0VBQ0ksQUFBUztFQUNULEFBQVk7RUFDWixBQUFPO0VBQ1AsQUFBWTtFQUNaLEFBQWE7RUFDYixBQUFXO0VBQ1gsQUFBd0I7RUFDeEIsQUFBeUI7RUFDekIsQUFBZ0I7O0FBR3BCO0VBQ0ksQUFBZTtFQUNmLEFBQWdCO0VBQ2hCLEFBQWdCO0VBQ3BCLEFBQUU7SUFDTSxBQUFTO0lBQ1QsQUFBVzs7QUFJbkI7RUFDSSxBQUFRO0VBQ1IsQUFBVztFQUNYLEFBQVE7RUFDUixBQUFlOztBQ3pCVCxBQUFTO0VBQ2YsQUFBWTs7QUFHaEI7RUFDSSxBQUFTO0VBQ1QsQUFBWTs7QUFHaEI7RUFDSSxBQUFVO0VBQ1YsQUFBWTs7QUFJaEI7RUFDSSxBQUFPOztBQUdYO0VBQ0ksQUFBK0I7RUFDL0IsQUFBaUIiLCJmaWxlIjoidHVybi5jc3MiLCJzb3VyY2VzQ29udGVudCI6WyIkZm9udDogJ1F1aWNrc2FuZCc7XG4kZ29vZ2xpZmllZDogc3RyLXJlcGxhY2UoJGZvbnQsICcgJywgJysnKTtcbkBpbXBvcnQgdXJsKCcvL2ZvbnRzLmdvb2dsZWFwaXMuY29tL2Nzcz9mYW1pbHk9JyArICRnb29nbGlmaWVkKTsiLCJib2R5IHtcbiAgICBwYWRkaW5nOiA1JTtcbiAgICBiYWNrZ3JvdW5kOiAjMzY5O1xuICAgIGNvbG9yOiAjZmZmO1xuICAgIHRleHQtYWxpZ246IGNlbnRlcjtcbiAgICBmb250LWZhbWlseTogJGZvbnQsIHNhbnMtc2VyaWY7XG4gICAgZm9udC1zaXplOiAxMjAlO1xuICAgIC13ZWJraXQtZm9udC1zbW9vdGhpbmc6IGFudGlhbGlhc2VkO1xuICAgIC1tb3otb3N4LWZvbnQtc21vb3RoaW5nOiBncmF5c2NhbGU7XG4gICAgdGV4dC1yZW5kZXJpbmc6IG9wdGltaXplTGVnaWJpbGl0eTtcbn1cblxuaDEge1xuICAgIG1hcmdpbi1ib3R0b206IDEuNGVtO1xuICAgIHRleHQtdHJhbnNmb3JtOiB1cHBlcmNhc2U7XG4gICAgbGV0dGVyLXNwYWNpbmc6IDJweDtcbiAgICAmOjpmaXJzdC1sZXR0ZXIge1xuICAgICAgICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7XG4gICAgICAgIHRyYW5zZm9ybTogcm90YXRlKC00NWRlZyk7XG4gICAgfVxufVxuXG5ociB7XG4gICAgbWFyZ2luOiAxLjVlbSBhdXRvO1xuICAgIG1heC13aWR0aDogODBweDtcbiAgICBib3JkZXI6IDA7XG4gICAgYm9yZGVyLWJvdHRvbTogM3B4IHNvbGlkICNmZmY7XG59XG4iLCJcbiVtb3ZhYmxlIHtcbiAgICB0cmFuc2l0aW9uOiB0cmFuc2Zvcm0gMC4ycztcbn1cblxuI3R1cm4tYm9hcmQge1xuICAgIGRpc3BsYXk6IGlubGluZS1ibG9jaztcbiAgICBtYXJnaW4tdG9wOiAyZW07XG59XG5cbi5jdXJzb3Ige1xuICAgIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgICBiYWNrZ3JvdW5kOiByZ2JhKCNmZmYsIDAuMTUpO1xuICAgIEBleHRlbmQgJW1vdmFibGU7XG59XG5cbi50aWxlIHtcbiAgICBmbG9hdDogbGVmdDtcbn1cblxuLmFycm93IHtcbiAgICBiYWNrZ3JvdW5kOiB1cmwoJ3N2Zy9hcnJvdy5zdmcnKSBjZW50ZXIgY2VudGVyIG5vLXJlcGVhdDtcbiAgICBiYWNrZ3JvdW5kLXNpemU6IGNvbnRhaW47XG4gICAgQGV4dGVuZCAlbW92YWJsZTtcbn0iXSwic291cmNlUm9vdCI6Ii9zb3VyY2UvIn0= */

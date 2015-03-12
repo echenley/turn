@@ -4,6 +4,7 @@ var gulp = require('gulp');
 var browserify = require('browserify');
 var reactify = require('reactify');
 var watchify = require('watchify');
+var babelify = require('babelify');
 var gutil = require('gulp-util');
 var webserver = require('gulp-webserver');
 var notify = require('gulp-notify');
@@ -14,15 +15,18 @@ var autoprefixer = require('gulp-autoprefixer');
 var sourcemaps = require('gulp-sourcemaps');
 var minifycss = require('gulp-minify-css');
 var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
 var uglify = require('gulp-uglify');
 var useref = require('gulp-useref');
+// var svgstore = require('gulp-svgstore');
+var svgmin = require('gulp-svgmin');
+var exit = require('gulp-exit');
 
 var sourceDir = './src';
 var buildDir = './build';
 var distDir = './dist';
 
 function handleError() {
-    /* jshint ignore:start */
     var args = Array.prototype.slice.call(arguments);
     gutil.beep();
     notify.onError({
@@ -30,7 +34,6 @@ function handleError() {
         message: "<%= error.message %>"
     }).apply(this, args);
     this.emit('end'); // Keep gulp from hanging on this task
-    /* jshint ignore:end */
 }
 
 function buildScript(file) {
@@ -39,24 +42,28 @@ function buildScript(file) {
     props.debug = true;
 
     var bundler = browserify(props);
-    bundler = watchify(bundler);
-    bundler.transform(reactify);
+    bundler = watchify(bundler)
+        .transform(reactify)
+        .transform(babelify.configure({
+            extensions: ['.jsx']
+        }));
 
     function rebundle() {
+        gutil.log('Rebundle...');
         var start = Date.now();
         return bundler.bundle()
             .on('error', handleError)
             .pipe(source('turn.js'))
+            .pipe(buffer())
+            .pipe(sourcemaps.init({loadMaps: true}))
+            .pipe(sourcemaps.write('./'))
             .pipe(gulp.dest(buildDir))
             .pipe(notify(function() {
-                console.log('Rebundle Complete - ' + (Date.now() - start) + 'ms');
+                console.log('Rebundle Complete [' + (Date.now() - start) + 'ms]');
             }));
     }
 
-    bundler.on('update', function() {
-        rebundle();
-        gutil.log('Rebundle...');
-    });
+    bundler.on('update', rebundle);
     return rebundle();
 }
 
@@ -71,6 +78,13 @@ gulp.task('styles', function() {
         .pipe(autoprefixer('last 2 versions'))
         .pipe(gulp.dest(buildDir))
         .pipe(size());
+});
+
+gulp.task('svg', function() {
+    return gulp.src('src/svg/*.svg')
+        .pipe(svgmin())
+        // .pipe(svgstore()) // inlines the svgs as <symbol>s
+        .pipe(gulp.dest(buildDir +'/svg/'));
 });
 
 gulp.task('html', function() {
@@ -89,6 +103,11 @@ gulp.task('serve', function() {
         }));
 });
 
+gulp.task('build', ['html', 'styles', 'svg'], function() {
+    // NOTE: use boolean for watching/not watching
+    return buildScript('turn.jsx');
+});
+
 gulp.task('dist', ['build'], function() {
     var assets = useref.assets();
     return gulp.src('build/*.html')
@@ -97,14 +116,12 @@ gulp.task('dist', ['build'], function() {
         .pipe(gulpif('*.css', minifycss()))
         .pipe(assets.restore())
         .pipe(useref())
-        .pipe(gulp.dest(distDir));
-});
-
-gulp.task('build', ['html', 'styles'], function() {
-    return buildScript('turn.jsx');
+        .pipe(gulp.dest(distDir))
+        .pipe(exit());
 });
 
 gulp.task('default', ['build', 'serve'], function() {
     gulp.watch('src/*.html', ['html']);
+    gulp.watch('src/svg/*.svg', ['svg']);
     gulp.watch('src/scss/**/*.scss', ['styles']);
 });

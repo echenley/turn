@@ -11,17 +11,21 @@ Author URI: henleyedition.com
     <head>
         <title>Turn - A Game About Direction</title>
 
+        <meta name="description" content="Turn is a simple spatial game written in ReactJS">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
         <!-- build:css turn.min.css -->
         <link rel="stylesheet" href="turn.css">
         <!-- endbuild -->
-
-        <meta name="description" content="Turn is a simple spatial game written in ReactJS">
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     </head>
     <body>
+        <h1>Turn</h1>
+        <hr>
+        <h2>A Game About Direction</h2>
+        <hr>
         <div id="container"></div>
 
-        <script src="http://fb.me/react-with-addons-0.12.2.min.js"></script>
+        <script src="http://fb.me/react-with-addons-0.13.0.js"></script>
 
         <!-- build:js turn.min.js -->
         <script src="turn.js"></script>
@@ -29,14 +33,13 @@ Author URI: henleyedition.com
 
         <!-- Google Analytics -->
         <script>
-            /* jshint ignore:start */
+            /* eslint-disable */
             (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
             function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
             e=o.createElement(i);r=o.getElementsByTagName(i)[0];
             e.src='//www.google-analytics.com/analytics.js';
             r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
             ga('create','UA-53148902-1');ga('send','pageview');
-            /* jshint ignore:end */
         </script>
     </body>
 </html>

@@ -1,0 +1,28 @@
+body {
+    padding: 5%;
+    background: #369;
+    color: #fff;
+    text-align: center;
+    font-family: $font, sans-serif;
+    font-size: 120%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+h1 {
+    margin-bottom: 1.4em;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    &::first-letter {
+        display: inline-block;
+        transform: rotate(-45deg);
+    }
+}
+
+hr {
+    margin: 1.5em auto;
+    max-width: 80px;
+    border: 0;
+    border-bottom: 3px solid #fff;
+}

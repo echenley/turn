@@ -1,0 +1,3 @@
+$font: 'Quicksand';
+$googlified: str-replace($font, ' ', '+');
+@import url('//fonts.googleapis.com/css?family=' + $googlified);
