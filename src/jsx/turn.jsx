@@ -10,17 +10,23 @@
 const _ = require('lodash');
 
 import Cursor from './modules/cursor.jsx';
+import Sprite from './modules/sprite.jsx';
+import Vectors from './modules/vectors.js';
 
 class Turn extends React.Component {
 
     constructor(props) {
         super(props);
         let tileSize = 50;
-        let boardSize = props.tiles[0].length * tileSize;
+        let boardSize = props.tiles.length * tileSize;
         this.state = {
             tileSize: tileSize,
             boardSize: boardSize,
             tiles: props.tiles,
+            sprites: [{
+                type: 'circle',
+                start: { x: 0, y: 0 }
+            }],
             cursorPosition: {
                 x: 0,
                 y: 0
@@ -28,26 +34,42 @@ class Turn extends React.Component {
         };
     }
 
+    isValidMove(to) {
+        var boardWidth = this.state.tiles.length;
+
+        // edge of board
+        if (to.x < 0 || to.x > boardWidth - 1 ||
+            to.y < 0 || to.y > boardWidth - 1) {
+            return false;
+        }
+
+        return true;
+    }
+
     moveCursor(direction) {
-        let position = this.state.cursorPosition;
+        let from = this.state.cursorPosition;
         let to = {
-            x: position.x + direction.x,
-            y: position.y + direction.y
+            x: from.x + direction.x,
+            y: from.y + direction.y
         };
+
+        if (!this.isValidMove(to)) {
+            return;
+        }
+
         this.setState({
             cursorPosition: to
         });
     }
 
-    getTileIndex(position) {
-        let width = Math.sqrt(this.state.tiles.length);
-        return (position.y + 1) * width + position.x;
-    }
-
-    rotateTile() {
+    rotateTile(clockwise) {
         let tiles = this.state.tiles;
         let position = this.state.cursorPosition;
-        tiles[position.y][position.x] += 1;
+        if (clockwise) {
+            tiles[position.y][position.x] += 1;
+        } else {
+            tiles[position.y][position.x] -= 1;
+        }
         this.setState({
             tiles: tiles
         });
@@ -55,18 +77,20 @@ class Turn extends React.Component {
 
     handleKeyEvent(e) {
         let key = e.keyCode;
-        if ([32, 37, 38, 39, 40].indexOf(key) !== -1) {
+
+        if ([37, 38, 39, 40, 65, 68].indexOf(key) !== -1) {
             if (e.metaKey || e.ctrlKey) {
                 return;
             }
             e.preventDefault();
         }
 
-        if (key === 32) { this.rotateTile(); }
-        else if (key === 37) { this.moveCursor({x: -1, y: 0}); } // left
-        else if (key === 38) { this.moveCursor({x: 0, y: -1}); } // up
-        else if (key === 39) { this.moveCursor({x: 1, y: 0}); } // right
-        else if (key === 40) { this.moveCursor({x: 0, y: 1}); } // down
+        if (key === 37) { this.moveCursor(Vectors[0]); }      // left
+        else if (key === 38) { this.moveCursor(Vectors[1]); } // up
+        else if (key === 39) { this.moveCursor(Vectors[2]); } // right
+        else if (key === 40) { this.moveCursor(Vectors[3]); } // down
+        else if (key === 68) { this.rotateTile(true); }       // D
+        else if (key === 65) { this.rotateTile(false); }      // A
     }
 
     componentDidMount() {
@@ -93,7 +117,7 @@ class Turn extends React.Component {
         };
 
         // convert tile map into jsx
-        let map = _.flatten(tiles).map(function(tileType, i) {
+        let tileMap = _.flatten(tiles).map((tileType, i) => {
             let tileStyle = _.assign({
                 transform: 'rotate(' + (tileType * 90) + 'deg)',
                 WebkitTransform: 'rotate(' + (tileType * 90) + 'deg)'
@@ -101,17 +125,22 @@ class Turn extends React.Component {
             return <div style={ tileStyle } className={ 'tile arrow' } key={ i } />;
         });
 
+        let sprites = this.state.sprites.map((sprite, i) => (
+            <Sprite sprite={ sprite } tiles={ tiles } dimensions={ tileDimensions } key={ i } />
+        ));
+
         return (
             <div id="turn-board" style={ boardDimensions }>
-                { map }
+                { tileMap }
                 <Cursor dimensions={ tileDimensions } position={ cursorPosition } />
+                { sprites }
             </div>
         );
     }
 }
 Turn.defaultProps = {
-    tiles: [[1, 1, 1, 1, 2, 2],
-            [1, 2, 1, 0, 3, 2],
+    tiles: [[2, 2, 2, 2, 2, 3],
+            [1, 2, 1, 0, 3, 0],
             [1, 1, 2, 1, 0, 1],
             [1, 3, 1, 1, 0, 0],
             [1, 1, 2, 1, 1, 1],

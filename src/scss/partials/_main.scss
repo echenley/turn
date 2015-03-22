@@ -1,6 +1,18 @@
+$bg-color: lighten(desaturate(#369, 20%), 10%);
+
+@keyframes turn {
+    100% {
+        transform: rotate(180deg);
+    }
+}
+
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+
 body {
     padding: 5%;
-    background: #369;
+    background: $bg-color;
     color: #fff;
     text-align: center;
     font-family: $font, sans-serif;
@@ -11,18 +23,10 @@ body {
 }
 
 h1 {
-    margin-bottom: 1.4em;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    &::first-letter {
-        display: inline-block;
-        transform: rotate(-45deg);
-    }
+    letter-spacing: 8px;
 }
 
-hr {
-    margin: 1.5em auto;
-    max-width: 80px;
-    border: 0;
-    border-bottom: 3px solid #fff;
+h2 {
+    margin: 0;
 }

@@ -22,17 +22,25 @@ var _ = require("lodash");
 
 var Cursor = _interopRequire(require("./modules/cursor.jsx"));
 
+var Sprite = _interopRequire(require("./modules/sprite.jsx"));
+
+var Vectors = _interopRequire(require("./modules/vectors.js"));
+
 var Turn = (function (_React$Component) {
     function Turn(props) {
         _classCallCheck(this, Turn);
 
         _get(Object.getPrototypeOf(Turn.prototype), "constructor", this).call(this, props);
         var tileSize = 50;
-        var boardSize = props.tiles[0].length * tileSize;
+        var boardSize = props.tiles.length * tileSize;
         this.state = {
             tileSize: tileSize,
             boardSize: boardSize,
             tiles: props.tiles,
+            sprites: [{
+                type: "circle",
+                start: { x: 0, y: 0 }
+            }],
             cursorPosition: {
                 x: 0,
                 y: 0
@@ -43,29 +51,44 @@ var Turn = (function (_React$Component) {
     _inherits(Turn, _React$Component);
 
     _createClass(Turn, {
+        isValidMove: {
+            value: function isValidMove(to) {
+                var boardWidth = this.state.tiles.length;
+
+                // edge of board
+                if (to.x < 0 || to.x > boardWidth - 1 || to.y < 0 || to.y > boardWidth - 1) {
+                    return false;
+                }
+
+                return true;
+            }
+        },
         moveCursor: {
             value: function moveCursor(direction) {
-                var position = this.state.cursorPosition;
+                var from = this.state.cursorPosition;
                 var to = {
-                    x: position.x + direction.x,
-                    y: position.y + direction.y
+                    x: from.x + direction.x,
+                    y: from.y + direction.y
                 };
+
+                if (!this.isValidMove(to)) {
+                    return;
+                }
+
                 this.setState({
                     cursorPosition: to
                 });
             }
         },
-        getTileIndex: {
-            value: function getTileIndex(position) {
-                var width = Math.sqrt(this.state.tiles.length);
-                return (position.y + 1) * width + position.x;
-            }
-        },
         rotateTile: {
-            value: function rotateTile() {
+            value: function rotateTile(clockwise) {
                 var tiles = this.state.tiles;
                 var position = this.state.cursorPosition;
-                tiles[position.y][position.x] += 1;
+                if (clockwise) {
+                    tiles[position.y][position.x] += 1;
+                } else {
+                    tiles[position.y][position.x] -= 1;
+                }
                 this.setState({
                     tiles: tiles
                 });
@@ -74,27 +97,32 @@ var Turn = (function (_React$Component) {
         handleKeyEvent: {
             value: function handleKeyEvent(e) {
                 var key = e.keyCode;
-                if ([32, 37, 38, 39, 40].indexOf(key) !== -1) {
+
+                if ([37, 38, 39, 40, 65, 68].indexOf(key) !== -1) {
                     if (e.metaKey || e.ctrlKey) {
                         return;
                     }
                     e.preventDefault();
                 }
 
-                if (key === 32) {
-                    this.rotateTile();
-                } else if (key === 37) {
-                    this.moveCursor({ x: -1, y: 0 });
+                if (key === 37) {
+                    this.moveCursor(Vectors[0]);
                 } // left
                 else if (key === 38) {
-                    this.moveCursor({ x: 0, y: -1 });
+                    this.moveCursor(Vectors[1]);
                 } // up
                 else if (key === 39) {
-                    this.moveCursor({ x: 1, y: 0 });
+                    this.moveCursor(Vectors[2]);
                 } // right
                 else if (key === 40) {
-                    this.moveCursor({ x: 0, y: 1 });
+                    this.moveCursor(Vectors[3]);
                 } // down
+                else if (key === 68) {
+                    this.rotateTile(true);
+                } // D
+                else if (key === 65) {
+                    this.rotateTile(false);
+                } // A
             }
         },
         componentDidMount: {
@@ -123,7 +151,7 @@ var Turn = (function (_React$Component) {
                 };
 
                 // convert tile map into jsx
-                var map = _.flatten(tiles).map(function (tileType, i) {
+                var tileMap = _.flatten(tiles).map(function (tileType, i) {
                     var tileStyle = _.assign({
                         transform: "rotate(" + tileType * 90 + "deg)",
                         WebkitTransform: "rotate(" + tileType * 90 + "deg)"
@@ -131,7 +159,11 @@ var Turn = (function (_React$Component) {
                     return React.createElement("div", { style: tileStyle, className: "tile arrow", key: i });
                 });
 
-                return React.createElement("div", { id: "turn-board", style: boardDimensions }, map, React.createElement(Cursor, { dimensions: tileDimensions, position: cursorPosition }));
+                var sprites = this.state.sprites.map(function (sprite, i) {
+                    return React.createElement(Sprite, { sprite: sprite, tiles: tiles, dimensions: tileDimensions, key: i });
+                });
+
+                return React.createElement("div", { id: "turn-board", style: boardDimensions }, tileMap, React.createElement(Cursor, { dimensions: tileDimensions, position: cursorPosition }), sprites);
             }
         }
     });
@@ -140,7 +172,7 @@ var Turn = (function (_React$Component) {
 })(React.Component);
 
 Turn.defaultProps = {
-    tiles: [[1, 1, 1, 1, 2, 2], [1, 2, 1, 0, 3, 2], [1, 1, 2, 1, 0, 1], [1, 3, 1, 1, 0, 0], [1, 1, 2, 1, 1, 1], [1, 3, 1, 1, 0, 0]]
+    tiles: [[2, 2, 2, 2, 2, 3], [1, 2, 1, 0, 3, 0], [1, 1, 2, 1, 0, 1], [1, 3, 1, 1, 0, 0], [1, 1, 2, 1, 1, 1], [1, 3, 1, 1, 0, 0]]
 };
 
 // var routes = (
@@ -153,7 +185,7 @@ Turn.defaultProps = {
 
 React.render(React.createElement(Turn, null), document.getElementById("container"));
 
-},{"./modules/cursor.jsx":"/Users/echenley/Sites/turn/src/jsx/modules/cursor.jsx","lodash":"/Users/echenley/Sites/turn/node_modules/lodash/index.js"}],"/Users/echenley/Sites/turn/node_modules/lodash/index.js":[function(require,module,exports){
+},{"./modules/cursor.jsx":"/Users/echenley/Sites/turn/src/jsx/modules/cursor.jsx","./modules/sprite.jsx":"/Users/echenley/Sites/turn/src/jsx/modules/sprite.jsx","./modules/vectors.js":"/Users/echenley/Sites/turn/src/jsx/modules/vectors.js","lodash":"/Users/echenley/Sites/turn/node_modules/lodash/index.js"}],"/Users/echenley/Sites/turn/node_modules/lodash/index.js":[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -11783,7 +11815,6 @@ var Cursor = (function (_React$Component) {
     _createClass(Cursor, {
         render: {
             value: function render() {
-                // let cx = React.addons.classSet;
                 var dimensions = this.props.dimensions;
                 var position = this.props.position;
 
@@ -11794,6 +11825,7 @@ var Cursor = (function (_React$Component) {
                     transform: transform,
                     WebkitTransform: transform
                 }, dimensions);
+
                 return React.createElement("div", { className: "cursor", style: cursorStyle });
             }
         }
@@ -11804,7 +11836,115 @@ var Cursor = (function (_React$Component) {
 
 module.exports = Cursor;
 
-},{"lodash":"/Users/echenley/Sites/turn/node_modules/lodash/index.js"}]},{},["./src/jsx/turn.jsx"])
+},{"lodash":"/Users/echenley/Sites/turn/node_modules/lodash/index.js"}],"/Users/echenley/Sites/turn/src/jsx/modules/sprite.jsx":[function(require,module,exports){
+"use strict";
+
+var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(object, property, receiver) { var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc && desc.writable) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _inherits = function (subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; };
+
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
+var _ = require("lodash");
+var moveTimer = undefined;
+
+var Vectors = _interopRequire(require("./vectors.js"));
+
+var Sprite = (function (_React$Component) {
+    function Sprite(props) {
+        _classCallCheck(this, Sprite);
+
+        _get(Object.getPrototypeOf(Sprite.prototype), "constructor", this).call(this, props);
+        this.state = _.assign({
+            speed: 1000, // ms between each move
+            position: props.sprite.start
+        }, props);
+    }
+
+    _inherits(Sprite, _React$Component);
+
+    _createClass(Sprite, {
+        move: {
+            value: function move() {
+                // moves the sprite in the direction of the tile beneath it
+                var tiles = this.props.tiles;
+                var from = this.state.position;
+                var direction = Vectors.getVector(tiles[from.y][from.x]);
+                var to = {
+                    x: from.x + direction.x,
+                    y: from.y + direction.y
+                };
+
+                // TODO - check if sprite moves off board
+
+                this.setState({
+                    position: to
+                });
+            }
+        },
+        componentDidMount: {
+            value: function componentDidMount() {
+                moveTimer = setInterval(this.move.bind(this), this.state.speed);
+            }
+        },
+        componentWillUnmount: {
+            value: function componentWillUnmount() {
+                clearInterval(moveTimer);
+            }
+        },
+        render: {
+            value: function render() {
+                var dimensions = this.props.dimensions;
+                var sprite = this.props.sprite;
+                var position = this.state.position;
+
+                var spriteCx = "sprite " + sprite.type;
+
+                var transform = "translateX(" + position.x * dimensions.width + "px)";
+                transform += " translateY(" + position.y * dimensions.height + "px)";
+
+                var transition = "transform " + this.state.speed + "ms";
+
+                var spriteStyle = _.assign({
+                    transition: transition,
+                    WebkitTransition: "-webkit-" + transition,
+                    transform: transform,
+                    WebkitTransform: transform
+                }, dimensions);
+
+                return React.createElement("div", { className: spriteCx, style: spriteStyle });
+            }
+        }
+    });
+
+    return Sprite;
+})(React.Component);
+
+module.exports = Sprite;
+
+},{"./vectors.js":"/Users/echenley/Sites/turn/src/jsx/modules/vectors.js","lodash":"/Users/echenley/Sites/turn/node_modules/lodash/index.js"}],"/Users/echenley/Sites/turn/src/jsx/modules/vectors.js":[function(require,module,exports){
+"use strict";
+
+var Vectors = [{ x: -1, y: 0 }, // left
+{ x: 0, y: -1 }, // up
+{ x: 1, y: 0 }, // right
+{ x: 0, y: 1 } // down
+];
+
+Vectors.getVector = function (n) {
+    // returns vector given tile value
+    var i = n % 4;
+    i = i < 0 ? i + 4 : i;
+    return this[i];
+};
+
+module.exports = Vectors;
+
+},{}]},{},["./src/jsx/turn.jsx"])
 
 
 //# sourceMappingURL=turn.js.map

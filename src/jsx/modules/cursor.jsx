@@ -3,13 +3,13 @@
 const _ = require('lodash');
 
 class Cursor extends React.Component {
+
     constructor(props) {
         super(props);
         this.state = props;
     }
 
     render() {
-        // let cx = React.addons.classSet;
         let dimensions = this.props.dimensions;
         let position = this.props.position;
 
@@ -17,9 +17,10 @@ class Cursor extends React.Component {
         transform += 'translateY(' + (position.y * dimensions.height) + 'px)';
 
         let cursorStyle = _.assign({
-                transform: transform,
-                WebkitTransform: transform
-            }, dimensions);
+            transform: transform,
+            WebkitTransform: transform
+        }, dimensions);
+
         return (
             <div className='cursor' style={ cursorStyle } />
         );

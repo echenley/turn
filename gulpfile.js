@@ -45,7 +45,7 @@ function buildScript(file) {
     bundler = watchify(bundler)
         .transform(reactify)
         .transform(babelify.configure({
-            extensions: ['.jsx']
+            extensions: ['.jsx', '.js']
         }));
 
     function rebundle() {
@@ -104,7 +104,6 @@ gulp.task('serve', function() {
 });
 
 gulp.task('build', ['html', 'styles', 'svg'], function() {
-    // NOTE: use boolean for watching/not watching
     return buildScript('turn.jsx');
 });
 
